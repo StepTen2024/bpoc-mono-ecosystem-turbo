@@ -1,4 +1,4 @@
 {
-  "installCommand": "pnpm install",
-  "buildCommand": "pnpm build"
+  "installCommand": "cd ../.. && pnpm install",
+  "buildCommand": "cd ../.. && pnpm turbo run build --filter=web"
 }
