@@ -44,7 +44,6 @@ interface Candidate {
   hasResume: boolean;
   hasAiAnalysis: boolean;
   gameScores: {
-    typing?: number;
     disc?: string;
   };
   status: 'active' | 'inactive' | 'hired';
@@ -169,8 +168,8 @@ export default function CandidatesPage() {
                 <Gamepad2 className="h-5 w-5 text-emerald-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{candidates.filter(c => c.gameScores.typing).length}</p>
-                <p className="text-gray-400 text-sm">Completed Games</p>
+                <p className="text-2xl font-bold text-white">{candidates.filter(c => c.gameScores.disc).length}</p>
+                <p className="text-gray-400 text-sm">DISC Assessed</p>
               </div>
             </div>
           </CardContent>
@@ -256,17 +255,12 @@ export default function CandidatesPage() {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    {candidate.gameScores.typing && (
-                      <Badge variant="outline" className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30">
-                        Typing: {candidate.gameScores.typing}
-                      </Badge>
-                    )}
                     {candidate.gameScores.disc && (
                       <Badge variant="outline" className="bg-orange-500/20 text-orange-400 border-orange-500/30">
                         DISC: {candidate.gameScores.disc}
                       </Badge>
                     )}
-                    {!candidate.gameScores.typing && !candidate.gameScores.disc && (
+                    {!candidate.gameScores.disc && (
                       <span className="text-gray-500 text-sm">-</span>
                     )}
                   </div>

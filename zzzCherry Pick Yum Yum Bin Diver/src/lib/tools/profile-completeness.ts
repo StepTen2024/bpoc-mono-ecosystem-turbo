@@ -26,8 +26,6 @@ interface CandidateProfile {
   skills?: any[] | null
   work_experiences?: any[] | null
   educations?: any[] | null
-  typing_wpm?: number | null
-  english_score?: number | null
   phone?: string | null
   location?: string | null
   bio?: string | null
@@ -79,12 +77,12 @@ export function calculateProfileCompleteness(
       link: '/candidate/profile'
     },
     {
-      id: 'skill_verification',
-      label: 'Skill Verified (Typing or English)',
-      completed: !!candidate.typing_wpm || !!candidate.english_score,
+      id: 'contact_info',
+      label: 'Contact Info Complete',
+      completed: !!candidate.phone && !!candidate.location,
       weight: 25,
-      action: 'Take Typing Test',
-      link: '/tools/typing-test'
+      action: 'Complete Profile',
+      link: '/candidate/profile'
     }
   ]
 

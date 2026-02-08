@@ -50,11 +50,6 @@ interface CandidateDetail {
     recommendations?: string[];
     summary?: string;
   };
-  typingAssessment?: {
-    wpm: number;
-    accuracy: number;
-    completedAt: string;
-  };
   discAssessment?: {
     type: string;
     dominance: number;
@@ -233,12 +228,6 @@ export default function AdminCandidateDetailPage() {
                       AI Score: {candidate.aiAnalysis.overallScore || 'N/A'}
                     </Badge>
                   )}
-                  {candidate.typingAssessment && (
-                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
-                      <Star className="h-3 w-3 mr-1" />
-                      {candidate.typingAssessment.wpm} WPM
-                    </Badge>
-                  )}
                   {candidate.discAssessment && (
                     <Badge variant="outline" className="bg-orange-500/10 text-orange-400 border-orange-500/30">
                       <Target className="h-3 w-3 mr-1" />
@@ -414,36 +403,6 @@ export default function AdminCandidateDetailPage() {
                         </div>
                       </div>
                     ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {/* Typing Assessment */}
-          {candidate.typingAssessment && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-              <Card className="bg-white/5 border-white/10">
-                <CardHeader className="border-b border-white/10">
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Gamepad2 className="h-5 w-5 text-emerald-400" />
-                    Typing Test
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="text-center mb-4">
-                    <p className="text-4xl font-bold text-emerald-400">{candidate.typingAssessment.wpm}</p>
-                    <p className="text-gray-400 text-sm">Words per minute</p>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Accuracy</span>
-                    <span className="text-white">{candidate.typingAssessment.accuracy}%</span>
-                  </div>
-                  <div className="flex justify-between text-sm mt-2">
-                    <span className="text-gray-400">Completed</span>
-                    <span className="text-white">
-                      {new Date(candidate.typingAssessment.completedAt).toLocaleDateString()}
-                    </span>
                   </div>
                 </CardContent>
               </Card>

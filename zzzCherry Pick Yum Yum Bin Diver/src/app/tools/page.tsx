@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/shared/ui/card'
 import { Button } from '@/components/shared/ui/button'
-import { Mail, Keyboard, Calculator, Linkedin, Target, ArrowRight } from 'lucide-react'
+import { Mail, Calculator, Linkedin, Target, ArrowRight } from 'lucide-react'
 
 const TOOLS = [
   {
@@ -12,15 +12,6 @@ const TOOLS = [
     color: 'text-cyan-600',
     bgColor: 'bg-cyan-50',
     href: '/tools/email-signature'
-  },
-  {
-    id: 'typing-test',
-    title: 'Typing Speed Test',
-    description: 'Test your typing speed and accuracy. Most BPO jobs require 40+ WPM',
-    icon: Keyboard,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-50',
-    href: '/tools/typing-test'
   },
   {
     id: 'salary-calculator',
@@ -116,7 +107,7 @@ export default function ToolsPage() {
         {/* Stats/Trust Section */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12 text-center">
           <div>
-            <div className="text-3xl font-bold text-cyan-600 mb-1">5</div>
+            <div className="text-3xl font-bold text-cyan-600 mb-1">4</div>
             <div className="text-sm text-gray-600">Free Tools</div>
           </div>
           <div>

@@ -57,15 +57,6 @@ const tools = [
     gradient: 'from-purple-500 to-pink-600'
   },
   {
-    icon: Zap,
-    title: 'Typing Speed Test',
-    description: 'Get certified, stand out to recruiters',
-    tags: ['Get Verified', '₱50 Certificate'],
-    badge: 'Most Popular',
-    link: '/tools/typing-test',
-    gradient: 'from-yellow-500 to-orange-600'
-  },
-  {
     icon: DollarSign,
     title: 'BPO Salary Calculator',
     description: 'Know your worth in the job market',

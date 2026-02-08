@@ -11,7 +11,6 @@ import {
   Calendar,
   Star,
   Trophy,
-  Keyboard,
   Brain,
   FileText,
   Sparkles,
@@ -59,12 +58,6 @@ interface AssessmentData {
     cScore?: number;
     totalXp?: number;
   };
-  typing: {
-    completed: boolean;
-    bestWpm?: number;
-    bestAccuracy?: number;
-    totalSessions?: number;
-  };
   resume: {
     completed: boolean;
     score?: number;
@@ -98,10 +91,9 @@ export default function ProfilePreviewPage() {
 
       try {
         // Fetch profile data
-        const [profileRes, discRes, typingRes, aiRes] = await Promise.all([
+        const [profileRes, discRes, aiRes] = await Promise.all([
           fetch(`/api/user/profile?userId=${user.id}`),
           fetch(`/api/user/disc-stats?userId=${user.id}`),
-          fetch(`/api/user/typing-stats?userId=${user.id}`),
           fetch(`/api/user/ai-analysis?userId=${user.id}`),
         ]);
 
@@ -124,7 +116,6 @@ export default function ProfilePreviewPage() {
 
         const assessmentData: AssessmentData = {
           disc: { completed: false },
-          typing: { completed: false },
           resume: { completed: false },
         };
 
@@ -140,18 +131,6 @@ export default function ProfilePreviewPage() {
               sScore: data.stats.s_score,
               cScore: data.stats.c_score,
               totalXp: data.stats.total_xp,
-            };
-          }
-        }
-
-        if (typingRes.ok) {
-          const data = await typingRes.json();
-          if (data.stats?.best_wpm) {
-            assessmentData.typing = {
-              completed: true,
-              bestWpm: data.stats.best_wpm,
-              bestAccuracy: data.stats.best_accuracy,
-              totalSessions: data.stats.completed_sessions,
             };
           }
         }
@@ -294,12 +273,6 @@ export default function ProfilePreviewPage() {
 
             {/* Quick Stats */}
             <div className="flex gap-3">
-              {assessments?.typing.completed && (
-                <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 px-3 py-1.5">
-                  <Keyboard className="h-3 w-3 mr-1" />
-                  {assessments.typing.bestWpm} WPM
-                </Badge>
-              )}
               {assessments?.disc.completed && assessments.disc.primaryType && (
                 <Badge className={cn(
                   "px-3 py-1.5",
@@ -335,7 +308,7 @@ export default function ProfilePreviewPage() {
       </motion.div>
 
       {/* Assessment Details */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* DISC Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -389,51 +362,6 @@ export default function ProfilePreviewPage() {
               ) : (
                 <div className="text-center py-4">
                   <p className="text-gray-500 text-sm">Not completed</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Typing Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className={cn(
-            "h-full border-white/10",
-            assessments?.typing.completed ? "bg-cyan-500/5" : "bg-white/5"
-          )}>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-cyan-500/20">
-                  <Keyboard className="h-5 w-5 text-cyan-400" />
-                </div>
-                <h3 className="text-white font-semibold">Typing Speed</h3>
-              </div>
-              
-              {assessments?.typing.completed ? (
-                <div className="space-y-4">
-                  <div className="text-center p-4 rounded-lg bg-cyan-500/10">
-                    <p className="text-4xl font-bold text-cyan-400">{assessments.typing.bestWpm}</p>
-                    <p className="text-gray-400 text-sm">Words Per Minute</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-2 text-center">
-                    <div className="p-2 rounded bg-white/5">
-                      <p className="text-emerald-400 font-bold">{assessments.typing.bestAccuracy?.toFixed(1)}%</p>
-                      <p className="text-gray-500 text-xs">Accuracy</p>
-                    </div>
-                    <div className="p-2 rounded bg-white/5">
-                      <p className="text-white font-bold">{assessments.typing.totalSessions}</p>
-                      <p className="text-gray-500 text-xs">Sessions</p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-gray-500 text-sm">Not tested</p>
                 </div>
               )}
             </CardContent>
@@ -532,12 +460,6 @@ export default function ProfilePreviewPage() {
                 <li className="flex items-center gap-2">
                   <Brain className="h-4 w-4 text-purple-400" />
                   Take the DISC assessment to show your personality type
-                </li>
-              )}
-              {!assessments?.typing.completed && (
-                <li className="flex items-center gap-2">
-                  <Keyboard className="h-4 w-4 text-cyan-400" />
-                  Complete a typing test to showcase your speed
                 </li>
               )}
               {!assessments?.resume.completed && (

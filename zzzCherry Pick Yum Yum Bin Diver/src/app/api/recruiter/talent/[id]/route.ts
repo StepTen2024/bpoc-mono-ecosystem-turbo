@@ -105,7 +105,6 @@ export async function GET(
         summary: candidate.ai_analysis.improvedSummary,
         recommendations: candidate.ai_analysis.recommendations,
       } : null,
-      typingAssessment: null, // Not in view
       discAssessment: null, // Not in view
       gamification: {
         totalXp: candidate.total_xp || 0,
