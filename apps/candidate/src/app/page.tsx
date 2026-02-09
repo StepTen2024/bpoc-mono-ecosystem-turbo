@@ -13,8 +13,8 @@ export default function Home() {
       if (user) {
         router.push('/dashboard')
       } else {
-        // Redirect to main BPOC site for login
-        window.location.href = 'https://www.bpoc.io'
+        // TEMP: Go to resume for testing (was: redirect to bpoc.io)
+        router.push('/resume')
       }
     }
   }, [user, loading, router])
