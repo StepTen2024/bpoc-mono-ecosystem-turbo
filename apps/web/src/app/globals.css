@@ -478,3 +478,10 @@ input[type="date"]:focus { color: #ffffff; }
     min-height: 100dvh;
   }
 }
+
+/* Auto-add bottom margin for mobile navigation */
+@media (max-width: 1023px) {
+  main, [role="main"], .main-content {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+}
