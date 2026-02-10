@@ -24,8 +24,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { candidate_id, job_id, message } = body as { candidate_id?: string; job_id?: string; message?: string };
 
-    if (!candidateId || !jobId) {
-      return NextResponse.json({ error: 'candidateId and jobId are required' }, { status: 400 });
+    if (!candidate_id || !job_id) {
+      return NextResponse.json({ error: 'candidate_id and job_id are required' }, { status: 400 });
     }
 
     // Recruiter context
@@ -65,8 +65,8 @@ export async function POST(request: NextRequest) {
       .from('job_applications')
       .upsert(
         {
-          candidate_id: candidateId,
-          job_id: jobId,
+          candidate_id: candidate_id,
+          job_id: job_id,
           status: 'invited',
           recruiter_notes: typeof message === 'string' && message.trim().length > 0 ? message.trim() : null,
           updated_at: now,
@@ -91,9 +91,9 @@ export async function POST(request: NextRequest) {
     // Candidate notification (so invite shows up in bell + notifications page)
     let notificationCreated = false;
     let notificationError: string | null = null;
-    if (candidateId) {
+    if (candidate_id) {
       const { error: notifyError } = await supabaseAdmin.from('notifications').insert({
-        user_id: candidateId,
+        user_id: candidate_id,
         type: 'job_invite',
         title: 'You were invited to apply ✨',
         message: 'A recruiter invited you to apply for a job. Review the invite and accept or decline.',
@@ -103,8 +103,8 @@ export async function POST(request: NextRequest) {
         is_read: false,
         metadata: {
           application_id: application?.id,
-          jobId,
-          candidateId,
+          job_id,
+          candidate_id,
           timestamp: now,
         },
       } as any);
@@ -125,8 +125,8 @@ export async function POST(request: NextRequest) {
         performed_by_id: recruiter.id,
         description: 'Recruiter invited candidate to apply',
         metadata: {
-          jobId,
-          candidateId,
+          job_id,
+          candidate_id,
           timestamp: now,
         },
       });
