@@ -57,7 +57,7 @@ const settingsNavItems: NavItem[] = [
   { name: 'Profile', href: '/profile', icon: User },
   { name: 'Agency', href: '/agency', icon: Building2 },
   { name: 'Team', href: '/team', icon: Users },
-  { name: 'API Keys', href: '/api', icon: Key },
+  { name: 'API Keys', href: '/settings/api', icon: Key },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
