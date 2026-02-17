@@ -1,9 +1,9 @@
 import { createClient } from './supabase/client'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { NextRequest } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 
 // Verify recruiter authentication from API route request
+// Uses the request cookies directly to avoid next/headers in shared file
 export async function verifyRecruiterAuth(request: NextRequest): Promise<{
   isValid: boolean
   error?: string
@@ -11,22 +11,34 @@ export async function verifyRecruiterAuth(request: NextRequest): Promise<{
   userId?: string
 }> {
   try {
-    const cookieStore = await cookies()
+    // Get auth token from cookies
+    const cookieHeader = request.headers.get('cookie') || ''
+    const cookies = Object.fromEntries(
+      cookieHeader.split('; ').filter(Boolean).map(c => {
+        const [key, ...val] = c.split('=')
+        return [key, val.join('=')]
+      })
+    )
     
-    const supabase = createServerClient(
+    // Find the Supabase auth token
+    const authToken = cookies['sb-ayrdnsiaylomcemfdisr-auth-token'] || 
+                      cookies['sb-access-token'] ||
+                      request.headers.get('Authorization')?.replace('Bearer ', '')
+    
+    if (!authToken) {
+      return { isValid: false, error: 'No auth token found' }
+    }
+
+    // Create Supabase client with the token
+    const supabase = createSupabaseClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options)
-            })
-          },
-        },
+        global: {
+          headers: {
+            Authorization: `Bearer ${authToken}`
+          }
+        }
       }
     )
 
