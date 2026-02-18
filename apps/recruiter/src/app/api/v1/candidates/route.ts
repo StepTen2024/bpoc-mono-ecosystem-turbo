@@ -69,9 +69,8 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
-    if (search) {
-      query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%,username.ilike.%${search}%`);
-    }
+    // Note: search filtering happens post-fetch to include profile fields (headline, bio, skills)
+    // DB-level filter only for non-search queries to keep pagination accurate
 
     const { data: candidates, count, error } = await query;
 
