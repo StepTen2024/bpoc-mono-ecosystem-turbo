@@ -56,7 +56,7 @@ export async function GET(
     // Fetch profile
     const { data: profile } = await supabaseAdmin
       .from('candidate_profiles')
-      .select('headline, location, experience_years, bio')
+      .select('headline, bio, position, location, location_city, location_province, location_country, work_status, expected_salary_min, expected_salary_max, preferred_shift, preferred_work_setup')
       .eq('candidate_id', id)
       .single();
 
@@ -74,13 +74,47 @@ export async function GET(
       .eq('is_primary', true)
       .single();
 
+    // Fetch work experiences for experience years calculation
+    const { data: workExps } = await supabaseAdmin
+      .from('candidate_work_experiences')
+      .select('start_date, end_date, is_current, job_title, company_name')
+      .eq('candidate_id', id)
+      .order('start_date', { ascending: false });
+
+    let experienceYears = 0;
+    (workExps || []).forEach(w => {
+      const start = w.start_date ? new Date(w.start_date) : null;
+      const end = w.is_current ? new Date() : (w.end_date ? new Date(w.end_date) : null);
+      if (start && end) {
+        experienceYears += (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+      }
+    });
+
     // Build response
     const response = {
       ...candidate,
       headline: profile?.headline || null,
-      location: profile?.location || null,
-      experience_years: profile?.experience_years || null,
       bio: profile?.bio || null,
+      position: profile?.position || null,
+      location: profile?.location || profile?.location_city || null,
+      location_city: profile?.location_city || null,
+      location_province: profile?.location_province || null,
+      location_country: profile?.location_country || null,
+      work_status: profile?.work_status || null,
+      expected_salary_min: profile?.expected_salary_min || null,
+      expected_salary_max: profile?.expected_salary_max || null,
+      preferred_shift: profile?.preferred_shift || null,
+      preferred_work_setup: profile?.preferred_work_setup || null,
+      experience_years: Math.round(experienceYears) || null,
+      latest_job_title: workExps?.[0]?.job_title || null,
+      latest_company: workExps?.[0]?.company_name || null,
+      work_experiences: (workExps || []).map(w => ({
+        job_title: w.job_title,
+        company_name: w.company_name,
+        start_date: w.start_date,
+        end_date: w.end_date,
+        is_current: w.is_current,
+      })),
       skills: (skills || []).map(s => s.name),
       resume_url: resume?.file_url || null,
     };
@@ -315,20 +349,20 @@ export async function PUT(
       .single();
 
     // Fetch profile
-    const { data: profile } = await supabaseAdmin
+    const { data: updatedProfile } = await supabaseAdmin
       .from('candidate_profiles')
-      .select('headline, location, experience_years, bio')
+      .select('headline, bio, position, location, location_city, location_province, location_country, work_status')
       .eq('candidate_id', id)
       .single();
 
     // Fetch skills
-    const { data: skills } = await supabaseAdmin
+    const { data: updatedSkills } = await supabaseAdmin
       .from('candidate_skills')
       .select('name')
       .eq('candidate_id', id);
 
     // Fetch resume
-    const { data: resume } = await supabaseAdmin
+    const { data: updatedResume } = await supabaseAdmin
       .from('candidate_resumes')
       .select('file_url')
       .eq('candidate_id', id)
@@ -338,12 +372,13 @@ export async function PUT(
     // Build response
     const response = {
       ...updatedCandidate,
-      headline: profile?.headline || null,
-      location: profile?.location || null,
-      experience_years: profile?.experience_years || null,
-      bio: profile?.bio || null,
-      skills: (skills || []).map(s => s.name),
-      resume_url: resume?.file_url || null,
+      headline: updatedProfile?.headline || null,
+      bio: updatedProfile?.bio || null,
+      position: updatedProfile?.position || null,
+      location: updatedProfile?.location || updatedProfile?.location_city || null,
+      work_status: updatedProfile?.work_status || null,
+      skills: (updatedSkills || []).map(s => s.name),
+      resume_url: updatedResume?.file_url || null,
     };
 
     const success = apiSuccess(response, 200);

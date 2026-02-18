@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
       .range(offset, offset + limit - 1);
 
     if (search) {
-      query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`);
+      query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%,username.ilike.%${search}%`);
     }
 
     const { data: candidates, count, error } = await query;
@@ -85,12 +85,35 @@ export async function GET(request: NextRequest) {
     // Get profiles
     const { data: profiles } = await supabaseAdmin
       .from('candidate_profiles')
-      .select('candidate_id, headline, location, experience_years')
+      .select('candidate_id, headline, bio, position, location, location_city, location_province, location_country, work_status, expected_salary_min, expected_salary_max, preferred_shift, preferred_work_setup')
       .in('candidate_id', candidateIds.length > 0 ? candidateIds : ['none']);
 
     const profileMap = Object.fromEntries(
       (profiles || []).map(p => [p.candidate_id, p])
     );
+
+    // Get work experience counts + years for experience_years calculation
+    const { data: workExperiences } = await supabaseAdmin
+      .from('candidate_work_experiences')
+      .select('candidate_id, start_date, end_date, is_current, job_title, company_name')
+      .in('candidate_id', candidateIds.length > 0 ? candidateIds : ['none']);
+
+    const experienceMap: Record<string, { years: number; latest_title: string | null; latest_company: string | null }> = {};
+    (workExperiences || []).forEach(w => {
+      if (!experienceMap[w.candidate_id]) {
+        experienceMap[w.candidate_id] = { years: 0, latest_title: null, latest_company: null };
+      }
+      const start = w.start_date ? new Date(w.start_date) : null;
+      const end = w.is_current ? new Date() : (w.end_date ? new Date(w.end_date) : null);
+      if (start && end) {
+        experienceMap[w.candidate_id].years += (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+      }
+      // Track most recent role (by start_date)
+      if (!experienceMap[w.candidate_id].latest_title || (start && start > new Date(experienceMap[w.candidate_id].latest_title!))) {
+        experienceMap[w.candidate_id].latest_title = w.job_title;
+        experienceMap[w.candidate_id].latest_company = w.company_name;
+      }
+    });
 
     // Get skills
     const { data: skillsData } = await supabaseAdmin
@@ -117,21 +140,47 @@ export async function GET(request: NextRequest) {
     // Format response - build with snake_case then transform
     let formattedCandidates = (candidates || []).map(c => {
       const profile = profileMap[c.id];
+      const exp = experienceMap[c.id];
       return {
         id: c.id,
         first_name: c.first_name,
         last_name: c.last_name,
         email: c.email,
-        phone: c.phone,
         avatar_url: c.avatar_url,
         headline: profile?.headline || null,
-        location: profile?.location || null,
-        experience_years: profile?.experience_years || null,
+        bio: profile?.bio || null,
+        position: profile?.position || null,
+        location: profile?.location || profile?.location_city || null,
+        location_city: profile?.location_city || null,
+        location_province: profile?.location_province || null,
+        location_country: profile?.location_country || null,
+        work_status: profile?.work_status || null,
+        expected_salary_min: profile?.expected_salary_min || null,
+        expected_salary_max: profile?.expected_salary_max || null,
+        preferred_shift: profile?.preferred_shift || null,
+        preferred_work_setup: profile?.preferred_work_setup || null,
+        experience_years: exp ? Math.round(exp.years) : null,
+        latest_job_title: exp?.latest_title || null,
+        latest_company: exp?.latest_company || null,
         skills: skillsMap[c.id] || [],
         has_resume: resumeSet.has(c.id),
         created_at: c.created_at,
       };
     });
+
+    // Post-fetch search filtering on profile fields (headline, bio, position, skills)
+    if (search) {
+      const searchLower = search.toLowerCase();
+      formattedCandidates = formattedCandidates.filter(c => 
+        c.first_name?.toLowerCase().includes(searchLower) ||
+        c.last_name?.toLowerCase().includes(searchLower) ||
+        c.headline?.toLowerCase().includes(searchLower) ||
+        c.position?.toLowerCase().includes(searchLower) ||
+        c.bio?.toLowerCase().includes(searchLower) ||
+        c.latest_job_title?.toLowerCase().includes(searchLower) ||
+        c.skills.some(s => s.toLowerCase().includes(searchLower))
+      );
+    }
 
     // Filter by skills if specified
     if (skills && skills.length > 0) {
