@@ -944,7 +944,7 @@ export default function RecruiterDashboard() {
   const fetchDashboardData = async () => {
     try {
       const token = await getSessionToken();
-      const response = await fetch('/api//stats', {
+      const response = await fetch('/api/recruiter/dashboard/stats', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'x-user-id': user?.id || '',
@@ -1275,7 +1275,9 @@ export default function RecruiterDashboard() {
   };
 
   const formatTimeAgo = (dateStr: string) => {
+    if (!dateStr) return '';
     const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
