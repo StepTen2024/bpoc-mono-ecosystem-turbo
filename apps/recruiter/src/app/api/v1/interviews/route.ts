@@ -591,7 +591,7 @@ export async function POST(request: NextRequest) {
       webhookInterviewScheduled({
         interviewId: interview.id,
         application_id: application_id,
-        candidateId: applicationData?.candidate_id,
+        candidateId: app?.candidate_id,
         scheduledAt: scheduledAtUTC,
         interviewType: type,
         meetingLink: videoRoom?.daily_room_url || null,
@@ -632,8 +632,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('API v1 interviews POST error:', error);
-    const errMsg = error instanceof Error ? error.message : String(error);
-    return withCors(NextResponse.json({ error: 'Internal server error', debug: errMsg }, { status: 500 }), request);
+    return withCors(NextResponse.json({ error: 'Internal server error' }, { status: 500 }), request);
   }
 }
 
