@@ -36,12 +36,8 @@ export function NotificationBell() {
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  const roleBase =
-    pathname?.startsWith('/recruiter') ? 'recruiter' :
-    pathname?.startsWith('/admin') ? 'admin' :
-    'candidate';
-
-  const apiBase = `/api/${roleBase}/notifications`;
+  // Admin app always uses /api/notifications directly
+  const apiBase = `/api/notifications`;
 
   const fetchNotifications = async () => {
     if (!session?.access_token) return;

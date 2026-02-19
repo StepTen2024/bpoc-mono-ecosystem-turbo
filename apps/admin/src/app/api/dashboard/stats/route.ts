@@ -82,10 +82,10 @@ export async function GET(request: NextRequest) {
 
     // Format recent activity
     const recentActivity = (recentActivityResult.data || []).map((candidate, index) => ({
-      id: candidate.id,
-      type: 'signup',
-      message: `New candidate registered: ${candidate.first_name} ${candidate.last_name} (${candidate.email})`,
-      time: formatTimeAgo(new Date(candidate.created_at)),
+      id: candidate.id || `activity-${index}`,
+      type: 'signup' as const,
+      message: `New candidate registered: ${candidate.first_name || ''} ${candidate.last_name || ''} (${candidate.email || 'unknown'})`.trim(),
+      time: candidate.created_at ? formatTimeAgo(new Date(candidate.created_at)) : 'Unknown',
     }));
 
     // Alerts for admin dashboard
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
         severity: 'warning',
         message: `${pendingVerificationResult.count} ${pendingVerificationResult.count === 1 ? 'agency needs' : 'agencies need'} document verification`,
         count: pendingVerificationResult.count,
-        href: '/admin/agencies',
+        href: '/agencies',
       });
     }
 
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
         severity: 'error',
         message: `${expiredDocsResult.data.length} ${expiredDocsResult.data.length === 1 ? 'agency has' : 'agencies have'} expired documents`,
         count: expiredDocsResult.data.length,
-        href: '/admin/agencies',
+        href: '/agencies',
       });
     }
 
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
         severity: 'info',
         message: `${expiringDocsResult.data.length} ${expiringDocsResult.data.length === 1 ? 'agency has' : 'agencies have'} documents expiring within 30 days`,
         count: expiringDocsResult.data.length,
-        href: '/admin/agencies',
+        href: '/agencies',
       });
     }
 
