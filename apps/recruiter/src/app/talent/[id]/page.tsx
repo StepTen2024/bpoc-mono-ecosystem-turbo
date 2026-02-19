@@ -19,7 +19,8 @@ import {
   X,
   ExternalLink,
   Github,
-  Linkedin
+  Linkedin,
+  Calendar
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/shared/ui/card';
 import { Button } from '@/components/shared/ui/button';
