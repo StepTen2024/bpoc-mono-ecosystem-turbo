@@ -230,6 +230,9 @@ export default function ApplicationsPage() {
   useEffect(() => {
     if (session?.access_token) {
       fetchApplications()
+    } else {
+      // No session available — stop loading so the page renders empty state
+      setLoading(false)
     }
   }, [session?.access_token])
 
