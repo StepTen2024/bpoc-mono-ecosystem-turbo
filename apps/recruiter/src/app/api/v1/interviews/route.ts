@@ -296,7 +296,7 @@ export async function POST(request: NextRequest) {
 
     const { data: app } = await supabaseAdmin
       .from('job_applications')
-      .select('id, job_id')
+      .select('id, job_id, candidate_id')
       .eq('id', application_id)
       .in('job_id', jobIds)
       .single();
