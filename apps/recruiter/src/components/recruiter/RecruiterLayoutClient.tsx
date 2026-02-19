@@ -247,6 +247,7 @@ export default function RecruiterLayoutClient({
           {/* Document Expiry Warning */}
           {recruiter?.agency?.document_expiry_date && (() => {
             const expiry = new Date(recruiter.agency!.document_expiry_date!);
+            if (isNaN(expiry.getTime())) return null;
             const now = new Date();
             const daysUntil = Math.ceil((expiry.getTime() - now.getTime()) / 86400000);
             const isExpired = daysUntil < 0;
