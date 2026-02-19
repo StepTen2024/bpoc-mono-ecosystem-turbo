@@ -414,7 +414,7 @@ export async function POST(request: NextRequest) {
         host_user_id: auth.agency_id,
         participant_user_id: candidateAuthId,
         job_id: application.job_id,
-        applicationId: application_id,
+        application_id: application_id,
         interviewId: interviewId || null,
         status: 'created',
         enable_recording: enableRecording,
