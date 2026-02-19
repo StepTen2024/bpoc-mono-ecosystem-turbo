@@ -57,7 +57,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   Try Again
                 </Button>
                 <Button
-                  onClick={() => window.location.href = '/admin'}
+                  onClick={() => window.location.href = '/'}
                   variant="outline"
                   className="w-full border-white/10 text-white hover:bg-white/5"
                 >

@@ -995,7 +995,7 @@ export default function CreateInsightPage() {
           }
           clearPipelineStorage();
           toast({ title: isDraft ? '📝 Saved as draft!' : '🎉 Published!' });
-          router.push(isDraft ? '/admin/insights' : (result.article?.url || `/insights/${result.article?.slug}`));
+          router.push(isDraft ? '/insights' : (result.article?.url || `/insights/${result.article?.slug}`));
         } else { toast({ title: 'Error', description: result.error, variant: 'destructive' }); }
       } else {
         // Fallback: publish via old route if no pipeline (shouldn't happen normally)
@@ -1037,7 +1037,7 @@ export default function CreateInsightPage() {
             : siloData 
               ? `/insights/${siloData.slug}/${result.article?.slug}` 
               : `/insights/${result.article?.slug}`;
-          router.push(isDraft ? '/admin/insights' : (result.article?.url || fallbackUrl));
+          router.push(isDraft ? '/insights' : (result.article?.url || fallbackUrl));
         } else { toast({ title: 'Error', description: result.error, variant: 'destructive' }); }
       }
     } catch (err: any) { toast({ title: 'Error', description: err.message, variant: 'destructive' }); }
@@ -2183,7 +2183,7 @@ export default function CreateInsightPage() {
           <Button onClick={() => stage > 1 && setStage(stage - 1)} disabled={stage === 1} variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" /> Back
           </Button>
-          <Button onClick={() => router.push('/admin/insights')} variant="ghost" className="text-gray-400">Exit</Button>
+          <Button onClick={() => router.push('/insights')} variant="ghost" className="text-gray-400">Exit</Button>
         </div>
       </div>
     </div>

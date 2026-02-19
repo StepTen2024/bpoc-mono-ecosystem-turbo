@@ -19,7 +19,7 @@ export default function AdminSignupPage() {
   // Auto-redirect after 5 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.push('/admin/login');
+      router.push('/login');
     }, 5000);
     return () => clearTimeout(timer);
   }, [router]);

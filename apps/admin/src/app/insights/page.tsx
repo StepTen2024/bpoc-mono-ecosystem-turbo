@@ -271,7 +271,7 @@ export default function InsightsAdminPage() {
           <Button
             onClick={() => {
               setIsCreatingPost(true);
-              router.push('/admin/insights/create');
+              router.push('/insights/create');
             }}
             disabled={isCreatingPost}
             className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:opacity-80 disabled:cursor-wait min-w-[130px] transition-all duration-200"

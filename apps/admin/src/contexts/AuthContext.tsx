@@ -149,7 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (adminLevel === 'admin' || adminLevel === 'super_admin') {
             console.log('🔀 Redirecting admin user to /admin dashboard')
             setTimeout(() => {
-              window.location.href = '/admin'
+              window.location.href = '/'
             }, 500)
             return
           }

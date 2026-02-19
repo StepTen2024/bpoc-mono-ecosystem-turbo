@@ -122,7 +122,7 @@ export default function CreateCampaignPage() {
           : 'Campaign saved as draft!'
       );
 
-      router.push('/admin/outbound/campaigns');
+      router.push('/outbound/campaigns');
     } catch (error: any) {
       console.error('Error creating campaign:', error);
       alert(error.message || 'Failed to create campaign');
@@ -335,7 +335,7 @@ export default function CreateCampaignPage() {
       {/* Actions */}
       <div className="flex gap-4">
         <button
-          onClick={() => router.push('/admin/outbound/campaigns')}
+          onClick={() => router.push('/outbound/campaigns')}
           className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors"
           disabled={loading}
         >

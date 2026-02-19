@@ -1158,7 +1158,7 @@ export default function InsightsEditor({ post, isNew = false }: InsightsEditorPr
       {/* Back Button */}
       <Button
         variant="ghost"
-        onClick={() => router.push('/admin/insights')}
+        onClick={() => router.push('/insights')}
         className="text-gray-400 hover:text-white hover:bg-white/5 -ml-2 mb-2"
       >
         <ArrowLeft className="w-4 h-4 mr-2" />

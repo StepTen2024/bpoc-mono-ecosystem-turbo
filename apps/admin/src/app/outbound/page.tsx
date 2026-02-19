@@ -141,28 +141,28 @@ export default function OutboundDashboard() {
   const quickActions = [
     {
       label: 'Import CSV',
-      href: '/admin/outbound/import',
+      href: '/outbound/import',
       icon: FileUp,
       description: 'Import contacts from CSV file',
       color: 'from-cyan-500 to-blue-500',
     },
     {
       label: 'Create Campaign',
-      href: '/admin/outbound/campaigns/create',
+      href: '/outbound/campaigns/create',
       icon: Plus,
       description: 'Start a new email campaign',
       color: 'from-orange-500 to-red-500',
     },
     {
       label: 'View Contacts',
-      href: '/admin/outbound/contacts',
+      href: '/outbound/contacts',
       icon: Users,
       description: 'Manage contact database',
       color: 'from-purple-500 to-pink-500',
     },
     {
       label: 'Analytics',
-      href: '/admin/outbound/analytics',
+      href: '/outbound/analytics',
       icon: BarChart3,
       description: 'View detailed analytics',
       color: 'from-green-500 to-emerald-500',

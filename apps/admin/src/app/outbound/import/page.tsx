@@ -416,7 +416,7 @@ export default function ImportPage() {
               Import Another File
             </button>
             <button
-              onClick={() => (window.location.href = '/admin/outbound/contacts')}
+              onClick={() => (window.location.href = '/outbound/contacts')}
               className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-semibold rounded-lg transition-all"
             >
               View Contacts

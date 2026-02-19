@@ -235,7 +235,7 @@ export default function AdminAgencyDetailPage() {
         setAgency(data.agency);
       } else {
         toast.error('Agency not found');
-        router.push('/admin/agencies');
+        router.push('/agencies');
       }
     } catch (error) {
       console.error('Failed to fetch agency:', error);

@@ -110,7 +110,7 @@ export default function AdminApplicationDetailPage() {
         });
       } else {
         toast.error('Application not found');
-        router.push('/admin/applications');
+        router.push('/applications');
       }
     } catch (error) {
       console.error('Failed to fetch application:', error);

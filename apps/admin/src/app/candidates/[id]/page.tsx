@@ -99,7 +99,7 @@ export default function AdminCandidateDetailPage() {
         setCandidate(data.candidate);
       } else {
         toast.error('Candidate not found');
-        router.push('/admin/candidates');
+        router.push('/candidates');
       }
     } catch (error) {
       console.error('Failed to fetch candidate:', error);

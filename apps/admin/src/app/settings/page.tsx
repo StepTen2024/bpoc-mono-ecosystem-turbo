@@ -13,7 +13,7 @@ export default function SettingsPage() {
       description: 'Manage global SEO settings and organization data',
       icon: Globe,
       color: 'cyan',
-      href: '/admin/settings/seo',
+      href: '/settings/seo',
     },
     {
       title: 'Profile Settings',
