@@ -4,11 +4,15 @@
 
 import { createBrowserClient } from '@supabase/ssr'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
 // Use the modern SSR-compatible browser client
-export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
+// During build/prerender, env vars may be empty - use placeholders to avoid crash
+export const supabase = createBrowserClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder'
+)
 
 // Auth helper functions
 export const signUp = async (email: string, password: string, metadata?: any) => {

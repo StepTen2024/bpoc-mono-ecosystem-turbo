@@ -1,6 +1,8 @@
 /* eslint-disable react/no-unescaped-entities */
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
