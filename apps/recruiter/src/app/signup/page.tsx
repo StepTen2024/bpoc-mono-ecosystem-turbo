@@ -185,11 +185,11 @@ function RecruiterSignupContent() {
 
       setSuccess(true);
 
-      // Always redirect to dashboard — the layout shows status banners
-      // for unverified recruiters (pending_documents, pending_authorization_head, etc.)
+      // Use router.push for SPA navigation so auth context is preserved
+      // window.location.href causes a full reload which loses the session before cookies are set
       setTimeout(() => {
-        window.location.href = '/recruiter';
-      }, 1000);
+        router.push('/');
+      }, 500);
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
