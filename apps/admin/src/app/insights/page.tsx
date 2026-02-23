@@ -260,7 +260,7 @@ export default function InsightsAdminPage() {
           <p className="text-gray-400">Manage Insights, SEO Metadata, and Content Silos.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/admin/insights/silos">
+          <Link href="/insights/silos">
             <Button
               variant="outline"
               className="border-white/20 hover:bg-white/5 hover:border-purple-500/50"

@@ -161,7 +161,7 @@ export default function AdminApplicationDetailPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <Link
-          href="/admin/applications"
+          href="/applications"
           className="inline-flex items-center text-gray-400 hover:text-white transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />

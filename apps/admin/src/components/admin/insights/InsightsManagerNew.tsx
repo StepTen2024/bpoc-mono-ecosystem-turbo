@@ -194,7 +194,7 @@ export default function InsightsManagerNew() {
             )}
             Scan All Articles
           </Button>
-          <Link href="/admin/insights/create">
+          <Link href="/insights/create">
             <Button className="bg-gradient-to-r from-cyan-500 to-blue-600">
               <Plus className="w-4 h-4 mr-2" /> New Article
             </Button>

@@ -221,7 +221,7 @@ export default function SilosAdminPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <Link href="/admin/insights">
+          <Link href="/insights">
             <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
               <ArrowLeft className="w-4 h-4 mr-2" /> Back
             </Button>

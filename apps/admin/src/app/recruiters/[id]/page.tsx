@@ -234,7 +234,7 @@ export default function RecruiterDetailPage({ params }: { params: Promise<{ id: 
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <Link href="/admin/recruiters">
+        <Link href="/recruiters">
           <Button variant="ghost" className="mb-4 text-gray-400 hover:text-white">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Recruiters

@@ -264,14 +264,14 @@ export default function OutboundDashboard() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-white">Recent Campaigns</h2>
           <Link
-            href="/admin/outbound/campaigns"
+            href="/outbound/campaigns"
             className="text-red-400 hover:text-red-300 text-sm font-medium"
           >
             View All →
           </Link>
         </div>
         <div className="text-gray-400 text-center py-8">
-          No campaigns yet. <Link href="/admin/outbound/campaigns/create" className="text-red-400 hover:text-red-300">Create your first campaign</Link>
+          No campaigns yet. <Link href="/outbound/campaigns/create" className="text-red-400 hover:text-red-300">Create your first campaign</Link>
         </div>
       </div>
     </div>

@@ -179,7 +179,7 @@ export default function AgenciesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Link href={`/admin/agencies/${agency.id}`}>
+            <Link href={`/agencies/${agency.id}`}>
               <Card className="bg-white/5 border-white/10 hover:border-cyan-500/30 transition-all cursor-pointer group">
                 <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">

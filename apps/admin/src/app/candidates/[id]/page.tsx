@@ -144,7 +144,7 @@ export default function AdminCandidateDetailPage() {
   return (
     <div className="space-y-6">
       {/* Back Button */}
-      <Link href="/admin/candidates" className="inline-flex items-center text-gray-400 hover:text-white transition-colors">
+      <Link href="/candidates" className="inline-flex items-center text-gray-400 hover:text-white transition-colors">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Candidates
       </Link>

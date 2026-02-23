@@ -165,7 +165,7 @@ export default function CampaignsPage() {
           <p className="text-gray-400">{campaigns.length} campaigns total</p>
         </div>
         <Link
-          href="/admin/outbound/campaigns/create"
+          href="/outbound/campaigns/create"
           className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-semibold rounded-lg transition-all"
         >
           <Plus className="h-5 w-5" />
@@ -204,7 +204,7 @@ export default function CampaignsPage() {
             <Mail className="h-12 w-12 text-gray-600 mx-auto mb-4" />
             <p className="text-gray-400 mb-4">No campaigns found</p>
             <Link
-              href="/admin/outbound/campaigns/create"
+              href="/outbound/campaigns/create"
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-semibold rounded-lg transition-all"
             >
               <Plus className="h-5 w-5" />

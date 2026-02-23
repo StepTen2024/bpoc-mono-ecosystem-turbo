@@ -68,7 +68,7 @@ export default function AdminSignupPage() {
 
           {/* Actions */}
           <div className="space-y-3">
-            <Link href="/admin/login" className="block">
+            <Link href="/login" className="block">
               <Button className="w-full bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Go to Admin Login
