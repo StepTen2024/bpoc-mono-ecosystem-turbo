@@ -976,7 +976,7 @@ export default function AdminAgencyDetailPage() {
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={recruiter.avatarUrl} />
                           <AvatarFallback className="bg-gradient-to-br from-orange-500 to-amber-600 text-white">
-                            {recruiter.firstName[0]}{recruiter.lastName[0]}
+                            {(recruiter.firstName || 'R')[0]}{(recruiter.lastName || '')[0]}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
