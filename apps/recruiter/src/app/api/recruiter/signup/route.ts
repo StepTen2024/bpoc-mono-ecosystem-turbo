@@ -5,18 +5,18 @@ import crypto from 'crypto';
 
 export async function POST(req: Request) {
   try {
-    const {
-      email,
-      password,
-      firstName,
-      lastName,
-      agencyName,
-      inviteToken,
-      isAuthorized = true,
-      authorizedPersonFirstName,
-      authorizedPersonLastName,
-      authorizedPersonEmail
-    } = await req.json();
+    const body = await req.json();
+    const email = body.email;
+    const password = body.password;
+    // Accept both camelCase and snake_case field names
+    const firstName = body.firstName || body.first_name;
+    const lastName = body.lastName || body.last_name;
+    const agencyName = body.agencyName || body.agency_name;
+    const inviteToken = body.inviteToken || body.invite_token;
+    const isAuthorized = body.isAuthorized ?? body.is_authorized ?? true;
+    const authorizedPersonFirstName = body.authorizedPersonFirstName || body.authorized_person_first_name || '';
+    const authorizedPersonLastName = body.authorizedPersonLastName || body.authorized_person_last_name || '';
+    const authorizedPersonEmail = body.authorizedPersonEmail || body.authorized_person_email || '';
 
     if (!email || !password || !firstName || !lastName) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
