@@ -249,7 +249,7 @@ export async function POST(req: Request) {
         // Generate secure token for invitation
         const token = `inv_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
         // ALWAYS use production URL for invite links - NEVER localhost!
-        const inviteLink = `https://www.bpoc.io/recruiter/signup?invite=${token}`;
+        const inviteLink = `https://recruiter.bpoc.io/signup?invite=${token}`;
 
         // Get the full agency name for the invitation
         const { data: agencyData } = await supabaseAdmin
