@@ -97,7 +97,7 @@ export default function DocumentUploadPage() {
           scanning: false,
           scanResult: {
             docType: scan.documentType ?? scan.docType ?? scan.label ?? 'Unknown',
-            company_name: scan.company_name ?? scan.company_name ?? '—',
+            company_name: scan.companyName ?? scan.company_name ?? '—',
             valid: scan.isValid ?? scan.valid ?? scan.is_valid ?? false,
           },
         });
