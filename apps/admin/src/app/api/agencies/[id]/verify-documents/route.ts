@@ -69,6 +69,95 @@ IMPORTANT RULES:
 - Look for signs of document tampering (inconsistent fonts, misaligned text, obvious edits)
 - BPO-related business types include: BPO, outsourcing, call center, contact center, IT services, information technology, business process, KPO, shared services, back office, customer service, technical support, virtual assistance`;
 
+// Google Document AI configuration
+const DOCUMENT_AI_ENDPOINT = 'https://us-documentai.googleapis.com/v1';
+const FORM_PARSER_PROCESSOR = 'projects/155785088759/locations/us/processors/ee9a8694c07404ef';
+
+async function getGoogleAccessToken(): Promise<string> {
+  const keyData = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  if (!keyData) throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY not configured');
+  
+  let key: any;
+  try {
+    const decoded = Buffer.from(keyData, 'base64').toString('utf-8');
+    key = JSON.parse(decoded);
+  } catch {
+    key = JSON.parse(keyData);
+  }
+
+  const crypto = await import('crypto');
+  const now = Math.floor(Date.now() / 1000);
+  const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({
+    iss: key.client_email,
+    scope: 'https://www.googleapis.com/auth/cloud-platform',
+    aud: 'https://oauth2.googleapis.com/token',
+    iat: now,
+    exp: now + 3600,
+  })).toString('base64url');
+
+  const signer = crypto.createSign('RSA-SHA256');
+  signer.update(`${header}.${payload}`);
+  const signature = signer.sign(key.private_key, 'base64url');
+  const jwt = `${header}.${payload}.${signature}`;
+
+  const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
+  });
+  const tokenData = await tokenResponse.json();
+  if (!tokenData.access_token) throw new Error('Failed to get Google access token');
+  return tokenData.access_token;
+}
+
+async function extractWithDocumentAI(base64Content: string, mimeType: string): Promise<{ text: string; formFields: Array<{ name: string; value: string }> }> {
+  try {
+    const token = await getGoogleAccessToken();
+    const response = await fetch(`${DOCUMENT_AI_ENDPOINT}/${FORM_PARSER_PROCESSOR}:process`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        rawDocument: { content: base64Content, mimeType },
+      }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      console.error('[DocumentAI] Error:', err?.error?.message);
+      return { text: '', formFields: [] };
+    }
+
+    const result = await response.json();
+    const document = result.document || {};
+    const text = document.text || '';
+    
+    const formFields: Array<{ name: string; value: string }> = [];
+    for (const page of document.pages || []) {
+      for (const field of page.formFields || []) {
+        const getFieldText = (anchor: any) => {
+          if (!anchor?.textSegments?.length) return '';
+          return anchor.textSegments
+            .map((seg: any) => text.substring(parseInt(seg.startIndex || '0'), parseInt(seg.endIndex || '0')))
+            .join('').trim();
+        };
+        const fieldName = getFieldText(field.fieldName?.textAnchor);
+        const fieldValue = getFieldText(field.fieldValue?.textAnchor);
+        if (fieldName || fieldValue) formFields.push({ name: fieldName, value: fieldValue });
+      }
+    }
+
+    console.log(`[DocumentAI] ✅ Extracted ${text.length} chars, ${formFields.length} form fields`);
+    return { text, formFields };
+  } catch (error: any) {
+    console.error('[DocumentAI] Extraction failed:', error.message);
+    return { text: '', formFields: [] };
+  }
+}
+
 async function analyzeDocument(
   imageUrl: string,
   expectedType: string
@@ -105,6 +194,13 @@ async function analyzeDocument(
     const base64Image = Buffer.from(imageBuffer).toString('base64');
     const mimeType = imageResponse.headers.get('content-type') || 'image/jpeg';
 
+    // Step 1: Extract text with Google Document AI (accurate OCR)
+    const docAIResult = await extractWithDocumentAI(base64Image, mimeType);
+    const docAIContext = docAIResult.text 
+      ? `\n\nDOCUMENT AI EXTRACTED TEXT (high-accuracy OCR):\n${docAIResult.text.substring(0, 3000)}\n\nFORM FIELDS:\n${docAIResult.formFields.map(f => `${f.name}: ${f.value}`).join('\n').substring(0, 1000)}`
+      : '';
+
+    // Step 2: Send to Gemini for intelligent analysis (with both image + extracted text)
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${GEMINI_API_KEY}`,
       {
@@ -113,7 +209,7 @@ async function analyzeDocument(
         body: JSON.stringify({
           contents: [{
             parts: [
-              { text: DOCUMENT_ANALYSIS_PROMPT },
+              { text: DOCUMENT_ANALYSIS_PROMPT + docAIContext },
               { inline_data: { mime_type: mimeType, data: base64Image } }
             ]
           }],
