@@ -163,6 +163,7 @@ export async function POST(request: NextRequest) {
     const {
       agency_client_id,
       clientId, // Also accept clientId for compatibility
+      job_type,
       title,
       description,
       briefDescription,
@@ -180,26 +181,31 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Use agency_client_id or clientId
-    const selectedClientId = agency_client_id || clientId;
+    const jobType = job_type || 'client';
+    const selectedClientId = jobType === 'agency' ? null : (agency_client_id || clientId);
 
     if (!title) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
 
-    if (!selectedClientId) {
-      return NextResponse.json({ error: 'Client is required' }, { status: 400 });
+    if (jobType === 'client' && !selectedClientId) {
+      return NextResponse.json({ error: 'Client is required for client jobs' }, { status: 400 });
     }
 
-    // Verify the client belongs to this recruiter's agency
-    const { data: client, error: clientError } = await supabaseAdmin
-      .from('agency_clients')
-      .select('id, agency_id')
-      .eq('id', selectedClientId)
-      .eq('agency_id', recruiter.agency_id)
-      .single();
+    // Verify the client belongs to this recruiter's agency (only for client jobs)
+    let client = null;
+    if (selectedClientId) {
+      const { data: clientData, error: clientError } = await supabaseAdmin
+        .from('agency_clients')
+        .select('id, agency_id')
+        .eq('id', selectedClientId)
+        .eq('agency_id', recruiter.agency_id)
+        .single();
 
-    if (clientError || !client) {
-      return NextResponse.json({ error: 'Client not found or does not belong to your agency' }, { status: 400 });
+      if (clientError || !clientData) {
+        return NextResponse.json({ error: 'Client not found or does not belong to your agency' }, { status: 400 });
+      }
+      client = clientData;
     }
 
     // Generate slug
@@ -237,6 +243,15 @@ export async function POST(request: NextRequest) {
         .single();
       companyName = (clientData as any)?.companies?.name || '';
       agencyName = (clientData as any)?.agencies?.name || '';
+    } else {
+      // Agency-direct hire — get agency name
+      const { data: agencyData } = await supabaseAdmin
+        .from('agencies')
+        .select('name')
+        .eq('id', recruiter.agency_id)
+        .single();
+      agencyName = agencyData?.name || '';
+      companyName = agencyName;
     }
 
     // AI validates the job posting
@@ -259,6 +274,7 @@ export async function POST(request: NextRequest) {
     const { data: job, error: jobError } = await supabaseAdmin
       .from('jobs')
       .insert({
+        job_type: jobType,
         agency_client_id: selectedClientId,
         posted_by: recruiter.id,
         title,

@@ -46,6 +46,7 @@ export default function CreateJobPage() {
   const [loadingClients, setLoadingClients] = useState(true);
   
   const [formData, setFormData] = useState({
+    job_type: 'agency' as 'agency' | 'client',
     client_id: searchParams.get('clientId') || '',
     title: '',
     briefDescription: '',
@@ -117,7 +118,7 @@ export default function CreateJobPage() {
       toast.error('Please enter job title and description');
       return;
     }
-    if (!formData.client_id) {
+    if (formData.job_type === 'client' && !formData.client_id) {
       toast.error('Please select a client');
       return;
     }
@@ -163,7 +164,7 @@ export default function CreateJobPage() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.client_id) {
+    if (formData.job_type === 'client' && !formData.client_id) {
       toast.error('Please select a client');
       return;
     }
@@ -180,7 +181,8 @@ export default function CreateJobPage() {
         },
         body: JSON.stringify({
           ...formData,
-          agency_client_id: formData.client_id,
+          job_type: formData.job_type,
+          agency_client_id: formData.job_type === 'client' ? formData.client_id : null,
           salary_min: formData.salary_min ? parseInt(formData.salary_min) : null,
           salary_max: formData.salary_max ? parseInt(formData.salary_max) : null,
         }),
@@ -314,7 +316,45 @@ export default function CreateJobPage() {
               <h2 className="text-xl font-semibold text-white mb-6">Basic Information</h2>
               
               <div className="space-y-6">
-                {/* Client Selector */}
+                {/* Job Type Toggle */}
+                <div>
+                  <label className="block text-gray-400 text-sm mb-2">
+                    <Briefcase className="inline h-4 w-4 mr-1" />
+                    Job Type
+                  </label>
+                  <div className="flex bg-white/5 rounded-lg p-1 border border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, job_type: 'agency' as const, client_id: '' }))}
+                      className={`flex-1 py-3 px-4 text-sm font-medium rounded-md transition-all ${
+                        formData.job_type === 'agency'
+                          ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      🏢 Agency Direct Hire
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, job_type: 'client' as const }))}
+                      className={`flex-1 py-3 px-4 text-sm font-medium rounded-md transition-all ${
+                        formData.job_type === 'client'
+                          ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      👤 Client Job
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {formData.job_type === 'agency' 
+                      ? 'Hiring directly for your agency. You control the full pipeline.' 
+                      : 'Filling a role for a client. Includes client review steps.'}
+                  </p>
+                </div>
+
+                {/* Client Selector — only for client jobs */}
+                {formData.job_type === 'client' && (
                 <div>
                   <label className="block text-gray-400 text-sm mb-2">
                     <Building2 className="inline h-4 w-4 mr-1" />
@@ -352,6 +392,7 @@ export default function CreateJobPage() {
                     </p>
                   )}
                 </div>
+                )}
 
                 <div>
                   <label className="block text-gray-400 text-sm mb-2">Job Title *</label>
@@ -415,7 +456,7 @@ export default function CreateJobPage() {
 
                 <Button
                   onClick={handleGenerateWithAI}
-                  disabled={!formData.title || !formData.briefDescription || !formData.client_id || generating}
+                  disabled={!formData.title || !formData.briefDescription || (formData.job_type === 'client' && !formData.client_id) || generating}
                   className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 py-6"
                 >
                   {generating ? (
@@ -433,7 +474,7 @@ export default function CreateJobPage() {
 
                 <div className="text-center">
                   <button
-                    onClick={() => formData.client_id ? setStep(2) : toast.error('Please select a client')}
+                    onClick={() => (formData.job_type === 'agency' || formData.client_id) ? setStep(2) : toast.error('Please select a client')}
                     className="text-gray-400 hover:text-white text-sm"
                   >
                     Skip AI and write manually →
