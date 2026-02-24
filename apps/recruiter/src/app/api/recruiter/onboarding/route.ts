@@ -1,3 +1,4 @@
+import { getAgencyJobIds } from '@/lib/db/agency-jobs';
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { verifyAuthToken } from '@/lib/auth/verify-token';
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
     const { data: jobs } = await supabaseAdmin
       .from('jobs')
       .select('id, title, agency_clients(companies(name))')
-      .in('agency_client_id', clientIds);
+      .in('id', await getAgencyJobIds(agencyId));
 
     if (!jobs || jobs.length === 0) {
       return NextResponse.json({ onboardings: [], message: 'No jobs found' });

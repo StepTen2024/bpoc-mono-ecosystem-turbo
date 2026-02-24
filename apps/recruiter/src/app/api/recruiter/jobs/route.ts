@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { requireRecruiter, roleErrorResponse } from '@/lib/api-role-auth';
+import { getAgencyJobIds } from '@/lib/db/agency-jobs';
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,14 +16,11 @@ export async function GET(request: NextRequest) {
 
     const { agencyId } = auth.user!;
 
-    // Get agency_client ids for this agency
-    const { data: clients, error: clientsError } = await supabaseAdmin
-      .from('agency_clients')
-      .select('id')
-      .eq('agency_id', agencyId);
-
-    if (clientsError) throw clientsError;
-    const clientIds = (clients || []).map((c) => c.id);
+    // Get ALL job IDs for this agency (client + agency-direct)
+    const jobIds = await getAgencyJobIds(agencyId);
+    if (jobIds.length === 0) {
+      return NextResponse.json({ jobs: [] });
+    }
 
     const status = searchParams.get('status') || '';
 
@@ -42,6 +40,7 @@ export async function GET(request: NextRequest) {
         views,
         applicants_count,
         created_at,
+        job_type,
         agency_client_id,
         agency_clients (
           company_id,
@@ -50,13 +49,8 @@ export async function GET(request: NextRequest) {
           )
         )
       `)
+      .in('id', jobIds)
       .order('created_at', { ascending: false });
-
-    if (clientIds.length > 0) {
-      query = query.in('agency_client_id', clientIds);
-    } else {
-      return NextResponse.json({ jobs: [] });
-    }
 
     if (status && status !== 'all') {
       query = query.eq('status', status);

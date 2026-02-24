@@ -1,3 +1,4 @@
+import { getAgencyJobIds } from '@/lib/db/agency-jobs';
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { verifyAuthToken } from '@/lib/auth/verify-token';
@@ -28,33 +29,30 @@ export async function GET(request: NextRequest) {
 
     const agencyId = recruiter.agency_id;
 
-    // Get agency_clients for this agency
+    // Get ALL jobs for this agency (client + agency-direct)
+    const allJobIds = await getAgencyJobIds(agencyId);
+    if (allJobIds.length === 0) {
+      return NextResponse.json({ placements: [] });
+    }
+
+    // Get client info for display
     const { data: clients } = await supabaseAdmin
       .from('agency_clients')
       .select('id, companies(id, name)')
       .eq('agency_id', agencyId);
 
-    if (!clients || clients.length === 0) {
-      return NextResponse.json({ placements: [] });
-    }
-
-    const clientIds = clients.map(c => c.id);
     const clientMap = Object.fromEntries(
-      clients.map(c => [c.id, { 
+      (clients || []).map(c => [c.id, { 
         id: c.id, 
         name: (c.companies as any)?.name || 'Unknown Client' 
       }])
     );
 
-    // Get jobs for these clients
+    // Get jobs
     const { data: jobs } = await supabaseAdmin
       .from('jobs')
       .select('id, title, agency_client_id')
-      .in('agency_client_id', clientIds);
-
-    if (!jobs || jobs.length === 0) {
-      return NextResponse.json({ placements: [] });
-    }
+      .in('id', allJobIds);
 
     const jobIds = jobs.map(j => j.id);
     const jobMap = Object.fromEntries(

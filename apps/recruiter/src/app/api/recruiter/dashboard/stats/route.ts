@@ -1,3 +1,4 @@
+import { getAgencyJobIds } from '@/lib/db/agency-jobs';
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { verifyAuthToken } from '@/lib/auth/verify-token';
@@ -51,16 +52,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Get recent applications for quick view
-    const { data: clients } = await supabaseAdmin
-      .from('agency_clients')
-      .select('id')
-      .eq('agency_id', agencyId);
-    const clientIds = (clients || []).map(c => c.id);
-
-    const { data: jobsForAgency } = clientIds.length > 0
-      ? await supabaseAdmin.from('jobs').select('id').in('agency_client_id', clientIds)
-      : { data: [] };
-    const jobIds = (jobsForAgency || []).map(j => j.id);
+    const jobIds = await getAgencyJobIds(agencyId);
 
     const { data: recentApplications } = jobIds.length > 0
       ? await supabaseAdmin

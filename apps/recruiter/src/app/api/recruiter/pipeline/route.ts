@@ -45,24 +45,50 @@ export async function GET(request: NextRequest) {
       `)
       .eq('agency_id', agencyId);
 
-    if (!clients || clients.length === 0) {
-      return NextResponse.json({ 
-        candidates: [],
-        stages: getEmptyStages(),
-        message: 'No clients found'
-      });
+    const clientIds = (clients || []).map(c => c.id);
+    const clientMap = Object.fromEntries((clients || []).map(c => [c.id, (c.companies as any)?.name || 'Client']));
+
+    // Get agency name for agency-direct jobs
+    const { data: agency } = await supabaseAdmin
+      .from('agencies')
+      .select('name')
+      .eq('id', agencyId)
+      .single();
+    const agencyName = agency?.name || 'Agency';
+
+    // Get ALL jobs for this agency — both client jobs and agency-direct jobs
+    // Agency-direct jobs: posted_by is a recruiter in this agency, agency_client_id is null
+    const { data: agencyRecruiters } = await supabaseAdmin
+      .from('agency_recruiters')
+      .select('id')
+      .eq('agency_id', agencyId);
+    const recruiterIds = (agencyRecruiters || []).map(r => r.id);
+
+    // Fetch client jobs + agency-direct jobs
+    let allJobs: any[] = [];
+    
+    if (clientIds.length > 0) {
+      const { data: clientJobs } = await supabaseAdmin
+        .from('jobs')
+        .select('id, title, agency_client_id, job_type')
+        .in('agency_client_id', clientIds);
+      if (clientJobs) allJobs.push(...clientJobs);
+    }
+    
+    if (recruiterIds.length > 0) {
+      const { data: agencyJobs } = await supabaseAdmin
+        .from('jobs')
+        .select('id, title, agency_client_id, job_type')
+        .is('agency_client_id', null)
+        .in('posted_by', recruiterIds);
+      if (agencyJobs) allJobs.push(...agencyJobs);
     }
 
-    const clientIds = clients.map(c => c.id);
-    const clientMap = Object.fromEntries(clients.map(c => [c.id, (c.companies as any)?.name || 'Client']));
+    // Deduplicate
+    const jobIdSet = new Set<string>();
+    const jobs = allJobs.filter(j => { if (jobIdSet.has(j.id)) return false; jobIdSet.add(j.id); return true; });
 
-    // Get jobs for these clients
-    const { data: jobs } = await supabaseAdmin
-      .from('jobs')
-      .select('id, title, agency_client_id')
-      .in('agency_client_id', clientIds);
-
-    if (!jobs || jobs.length === 0) {
+    if (jobs.length === 0) {
       return NextResponse.json({ 
         candidates: [],
         stages: getEmptyStages(),
