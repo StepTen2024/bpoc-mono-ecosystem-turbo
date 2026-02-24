@@ -27,22 +27,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Get agency clients
-    const { data: clients } = await supabaseAdmin
-      .from('agency_clients')
-      .select('id')
-      .eq('agency_id', recruiter.agency_id);
-
-    if (!clients || clients.length === 0) {
-      return NextResponse.json({ onboardings: [], message: 'No clients found' });
+    // Get ALL jobs for this agency (client + agency-direct)
+    const allJobIds = await getAgencyJobIds(recruiter.agency_id);
+    if (allJobIds.length === 0) {
+      return NextResponse.json({ onboardings: [], message: 'No jobs found' });
     }
 
-    const clientIds = clients.map(c => c.id);
-
-    // Get jobs for these clients
     const { data: jobs } = await supabaseAdmin
       .from('jobs')
       .select('id, title, agency_clients(companies(name))')
-      .in('id', await getAgencyJobIds(agencyId));
+      .in('id', allJobIds);
 
     if (!jobs || jobs.length === 0) {
       return NextResponse.json({ onboardings: [], message: 'No jobs found' });

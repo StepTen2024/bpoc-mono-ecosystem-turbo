@@ -1,3 +1,4 @@
+import { getAgencyJobIds } from '@/lib/db/agency-jobs';
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { logApplicationActivity } from '@/lib/db/applications/queries.supabase';
@@ -44,24 +45,15 @@ export async function POST(
       );
     }
 
-    const { data: clients } = await supabaseAdmin
-      .from('agency_clients')
-      .select('id')
-      .eq('agency_id', recruiter.agency_id);
-
-    const clientIds = clients?.map((c: any) => c.id) || [];
-    if (clientIds.length === 0) {
-      return NextResponse.json({ error: 'No clients found for recruiter agency' }, { status: 404 });
-    }
+    const jobIds = await getAgencyJobIds(recruiter.agency_id);
 
     const { data: app, error: appErr } = await supabaseAdmin
       .from('job_applications')
-      .select('id, status, jobs!inner(agency_client_id)')
+      .select('id, status, job_id')
       .eq('id', id)
-      .in('jobs.agency_client_id', clientIds)
       .single();
 
-    if (appErr || !app) {
+    if (appErr || !app || !jobIds.includes(app.job_id)) {
       return NextResponse.json(
         { error: 'Application not found', details: debug ? appErr?.message : undefined },
         { status: 404 }

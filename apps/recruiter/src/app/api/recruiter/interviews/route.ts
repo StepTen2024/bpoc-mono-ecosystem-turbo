@@ -257,25 +257,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Recruiter not found' }, { status: 403 });
     }
 
-    const { data: clients } = await supabaseAdmin
-      .from('agency_clients')
-      .select('id')
-      .eq('agency_id', recruiter.agency_id);
-
-    const clientIds = clients?.map((c: any) => c.id) || [];
-    if (clientIds.length === 0) {
-      return NextResponse.json({ error: 'No clients found for this agency' }, { status: 404 });
-    }
+    const jobIds = await getAgencyJobIds(recruiter.agency_id);
 
     // Ensure application belongs to agency
     const { data: app } = await supabaseAdmin
       .from('job_applications')
-      .select('id, jobs!inner(agency_client_id)')
+      .select('id, job_id')
       .eq('id', application_id)
-      .in('jobs.agency_client_id', clientIds)
       .single();
 
-    if (!app) {
+    if (!app || !jobIds.includes(app.job_id)) {
       return NextResponse.json({ error: 'Application not found' }, { status: 404 });
     }
 

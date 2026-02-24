@@ -1,3 +1,4 @@
+import { getAgencyJobIds } from '@/lib/db/agency-jobs';
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { updateClientFeedback } from '@/lib/db/applications/queries.supabase';
@@ -27,19 +28,18 @@ export async function PATCH(
       return NextResponse.json({ error: 'Recruiter not found' }, { status: 404 });
     }
 
-    const { data: clients } = await supabaseAdmin
-      .from('agency_clients')
-      .select('id')
-      .eq('agency_id', recruiter.agency_id);
-
-    const clientIds = clients?.map(c => c.id) || [];
+    const jobIds = await getAgencyJobIds(recruiter.agency_id);
 
     const { data: app } = await supabaseAdmin
       .from('job_applications')
-      .select('id, jobs!inner(agency_client_id)')
+      .select('id, job_id')
       .eq('id', id)
-      .in('jobs.agency_client_id', clientIds)
       .single();
+    
+    // Verify this application belongs to a job in this agency
+    if (app && !jobIds.includes(app.job_id)) {
+      return NextResponse.json({ error: 'Application not found' }, { status: 404 });
+    }
 
     if (!app) {
       return NextResponse.json({ error: 'Application not found' }, { status: 404 });
