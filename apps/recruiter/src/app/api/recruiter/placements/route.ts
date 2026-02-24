@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       .select('id, title, agency_client_id')
       .in('id', allJobIds);
 
-    const jobIds = jobs.map(j => j.id);
+    const jobIds = (jobs || []).map(j => j.id);
     const jobMap = Object.fromEntries(
       jobs.map(j => [j.id, { title: j.title, client_id: j.agency_client_id }])
     );

@@ -41,8 +41,7 @@ export async function GET(request: NextRequest) {
       .select('id, title')
       .in('id', jobIds);
 
-    const jobIds = jobs.map(j => j.id);
-    const jobMap = Object.fromEntries(jobs.map(j => [j.id, j.title]));
+    const jobMap = Object.fromEntries((jobs || []).map(j => [j.id, j.title]));
 
     // Get applications for these jobs
     const { data: applications } = await supabaseAdmin
