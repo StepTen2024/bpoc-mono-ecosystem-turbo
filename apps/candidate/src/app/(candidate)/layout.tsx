@@ -68,9 +68,10 @@ export default function CandidateLayout({
         console.error('Layout auth check error:', error)
       }
 
-      console.log('No user found - TEMP: allowing access for testing')
-      setIsAuthenticated(true) // TEMP: allow unauthenticated access
-      setAuthChecked(true)
+      // Not authenticated — redirect to login
+      const currentPath = pathname || '/'
+      router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`)
+      return
     }
 
     checkAuth()

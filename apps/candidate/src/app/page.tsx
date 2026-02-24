@@ -13,8 +13,7 @@ export default function Home() {
       if (user) {
         router.push('/dashboard')
       } else {
-        // TEMP: Go to resume for testing (was: redirect to bpoc.io)
-        router.push('/resume')
+        router.push('/auth/login')
       }
     }
   }, [user, loading, router])

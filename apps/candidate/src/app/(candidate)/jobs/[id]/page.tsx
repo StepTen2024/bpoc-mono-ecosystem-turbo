@@ -149,7 +149,7 @@ export default function JobDetailPage() {
 
   const handleApply = async () => {
     if (!user || !session?.access_token) {
-      router.push('/auth/login?redirect=/jobs/' + jobId)
+      router.push('/auth/login?redirect=' + encodeURIComponent('/jobs/' + jobId))
       return
     }
 
