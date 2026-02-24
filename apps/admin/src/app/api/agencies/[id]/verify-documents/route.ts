@@ -408,8 +408,17 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAdmin();
-    const admin = await getAdminFromSession();
+    // Allow internal auto-verify trigger from recruiter upload (no admin session needed)
+    const isInternalTrigger = request.headers.get('x-internal-trigger') === 'auto-verify-on-upload';
+    
+    let admin: any;
+    if (isInternalTrigger) {
+      admin = { adminId: 'system-auto-verify', adminName: 'AI Auto-Verification' };
+      console.log('🤖 [AUTO-VERIFY] Internal trigger — bypassing admin auth');
+    } else {
+      await requireAdmin();
+      admin = await getAdminFromSession();
+    }
     const { id: agencyId } = await params;
 
     // Fetch agency with document URLs

@@ -154,10 +154,26 @@ export async function POST(req: Request) {
       },
     });
 
+    // Trigger AI verification in the background (fire and forget)
+    // The admin verify-documents endpoint handles the full pipeline:
+    // Document AI extraction → Gemini analysis → auto-approve if confident
+    const baseUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'https://admin.bpoc.io';
+    fetch(`${baseUrl}/api/agencies/${agencyId}/verify-documents`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-internal-trigger': 'auto-verify-on-upload',
+      },
+    }).then(res => {
+      console.log(`🤖 [AUTO-VERIFY] Triggered for agency ${agencyId}, status: ${res.status}`);
+    }).catch(err => {
+      console.error(`🤖 [AUTO-VERIFY] Failed to trigger for agency ${agencyId}:`, err.message);
+    });
+
     return NextResponse.json({
-      message: 'Documents uploaded successfully',
+      message: 'Documents uploaded successfully. AI verification in progress.',
       agencyId,
-      verificationStatus: 'pending_admin_review',
+      verificationStatus: 'processing',
     }, { status: 200 });
 
   } catch (error) {

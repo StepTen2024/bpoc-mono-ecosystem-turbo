@@ -29,8 +29,8 @@ export default function PendingVerificationPage() {
 
   useEffect(() => {
     checkStatus();
-    // Poll every 30 seconds
-    const interval = setInterval(checkStatus, 30000);
+    // Poll every 10 seconds (AI verification is fast)
+    const interval = setInterval(checkStatus, 10000);
     return () => clearInterval(interval);
   }, []);
 
