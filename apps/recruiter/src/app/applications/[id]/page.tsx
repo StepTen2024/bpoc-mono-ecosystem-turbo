@@ -116,6 +116,8 @@ export default function ApplicationDetailPage() {
   const [notesJustSaved, setNotesJustSaved] = useState(false);
   const [releaseLoading, setReleaseLoading] = useState(false);
   const [statusLoading, setStatusLoading] = useState<string | null>(null);
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const [offerData, setOfferData] = useState({ salary: '', currency: 'PHP', startDate: '', benefits: '' });
   const [shareByRoom, setShareByRoom] = useState<Record<string, ShareAllPrefs>>({});
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [scheduleType, setScheduleType] = useState('recruiter_prescreen');
@@ -1029,14 +1031,10 @@ export default function ApplicationDetailPage() {
                           <Button
                             variant="outline"
                             className="w-full justify-center border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
-                            onClick={() => updateApplicationStatus('offer_sent')}
+                            onClick={() => setShowOfferModal(true)}
                             disabled={!!statusLoading}
                           >
-                            {statusLoading === 'offer_sent' ? (
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            ) : (
-                              <Star className="h-4 w-4 mr-2" />
-                            )}
+                            <Star className="h-4 w-4 mr-2" />
                             Send Offer
                           </Button>
                         </div>
@@ -1210,6 +1208,104 @@ export default function ApplicationDetailPage() {
               : 'Candidate'
           }
         />
+      )}
+
+      {/* Offer Modal */}
+      {showOfferModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#1a1a2e] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-4">Send Job Offer</h3>
+            <p className="text-gray-400 text-sm mb-6">
+              Send an offer to {application?.candidates?.first_name || 'the candidate'} for {application?.jobs?.title || 'this position'}
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-gray-400 text-sm mb-1">Monthly Salary *</label>
+                <div className="flex gap-2">
+                  <select
+                    value={offerData.currency}
+                    onChange={(e) => setOfferData(prev => ({ ...prev, currency: e.target.value }))}
+                    className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white w-24"
+                  >
+                    <option value="PHP">PHP</option>
+                    <option value="USD">USD</option>
+                    <option value="AUD">AUD</option>
+                  </select>
+                  <Input
+                    type="number"
+                    placeholder="45000"
+                    value={offerData.salary}
+                    onChange={(e) => setOfferData(prev => ({ ...prev, salary: e.target.value }))}
+                    className="flex-1 bg-white/5 border-white/10 text-white"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-gray-400 text-sm mb-1">Start Date</label>
+                <Input
+                  type="date"
+                  value={offerData.startDate}
+                  onChange={(e) => setOfferData(prev => ({ ...prev, startDate: e.target.value }))}
+                  className="bg-white/5 border-white/10 text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-400 text-sm mb-1">Benefits (optional)</label>
+                <Input
+                  type="text"
+                  placeholder="HMO, 13th month, WFH setup"
+                  value={offerData.benefits}
+                  onChange={(e) => setOfferData(prev => ({ ...prev, benefits: e.target.value }))}
+                  className="bg-white/5 border-white/10 text-white"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setShowOfferModal(false)}
+                className="flex-1 border-white/10 text-gray-400"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!offerData.salary) { toast.error('Salary is required'); return; }
+                  setStatusLoading('offer_sent');
+                  try {
+                    const token = await getSessionToken();
+                    const res = await fetch('/api/recruiter/offers', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'x-user-id': user?.id || '' },
+                      body: JSON.stringify({
+                        application_id: application.id,
+                        salaryOffered: Number(offerData.salary),
+                        currency: offerData.currency,
+                        salaryType: 'monthly',
+                        startDate: offerData.startDate || null,
+                        benefits: offerData.benefits ? offerData.benefits.split(',').map((b: string) => b.trim()) : [],
+                      }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Failed to send offer');
+                    toast.success('Offer sent!');
+                    setShowOfferModal(false);
+                    setOfferData({ salary: '', currency: 'PHP', startDate: '', benefits: '' });
+                    handleUpdate();
+                  } catch (err: any) {
+                    toast.error(err.message);
+                  } finally {
+                    setStatusLoading(null);
+                  }
+                }}
+                disabled={!!statusLoading}
+                className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+              >
+                {statusLoading === 'offer_sent' ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Send Offer'}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
