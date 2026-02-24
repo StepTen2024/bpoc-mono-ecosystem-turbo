@@ -56,7 +56,7 @@ function selectAI(category: string, errorMessage: string): { model: string; prov
   
   // UI/Design errors → Gemini (visual understanding)
   if (category === 'ui' || msg.includes('render') || msg.includes('component') || msg.includes('style')) {
-    return { model: 'gemini-2.0-flash', provider: 'gemini' };
+    return { model: 'gemini-2.5-flash', provider: 'gemini' };
   }
   
   // Default to Claude for most errors (best at code)
@@ -138,7 +138,7 @@ Return JSON:
 
 async function analyzeWithGemini(errorData: any): Promise<any> {
   const genAI = getGenAIClient();
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   
   const result = await model.generateContent(`Analyze this UI/frontend error:
 
