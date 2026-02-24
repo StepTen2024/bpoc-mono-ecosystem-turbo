@@ -479,12 +479,36 @@ export async function POST(
     console.log(`✅ [DOC-VERIFY] Result: ${overallStatus} (${overallConfidence}%) for ${agency.name}`);
 
     // Store verification results on the agency
+    const updateData: Record<string, any> = {
+      document_verification: result,
+      document_verification_at: new Date().toISOString(),
+    };
+
+    // AUTO-APPROVE: If AI is confident (VERIFIED status), approve the agency automatically
+    // Only flag for manual review if confidence is low or issues found
+    if (overallStatus === 'VERIFIED') {
+      updateData.is_verified = true;
+      updateData.documents_verified = true;
+      updateData.documents_verified_at = new Date().toISOString();
+      updateData.documents_verified_by = admin.adminId;
+      
+      console.log(`🎉 [DOC-VERIFY] AUTO-APPROVED agency "${agency.name}" (${overallConfidence}% confidence)`);
+
+      // Update all recruiters in this agency to verified status
+      await supabase
+        .from('agency_recruiters')
+        .update({ 
+          verification_status: 'verified',
+          is_active: true,
+        })
+        .eq('agency_id', agencyId);
+      
+      console.log(`✅ [DOC-VERIFY] All recruiters for "${agency.name}" set to verified`);
+    }
+
     await supabase
       .from('agencies')
-      .update({
-        document_verification: result,
-        document_verification_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('id', agencyId);
 
     // Log the action

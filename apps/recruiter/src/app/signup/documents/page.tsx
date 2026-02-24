@@ -272,7 +272,7 @@ export default function DocumentUploadPage() {
                 <div className="p-3.5 rounded-xl bg-blue-500/[0.07] border border-blue-500/15 flex items-start gap-2.5">
                   <AlertCircle className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-blue-300/80">
-                    Documents are verified automatically using AI. You'll be notified shortly.
+                    Documents will be reviewed by our team. You'll be notified once verification is complete.
                   </p>
                 </div>
 

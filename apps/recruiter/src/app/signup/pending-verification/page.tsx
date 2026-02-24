@@ -151,7 +151,7 @@ export default function PendingVerificationPage() {
             </h1>
 
             <p className="text-xl text-gray-400 mb-8">
-              Your documents are being verified automatically by AI. This usually takes just a few minutes.
+              Your documents have been submitted for verification. Our AI will review them and you'll be approved automatically if everything checks out.
             </p>
 
             {/* Status Card */}
