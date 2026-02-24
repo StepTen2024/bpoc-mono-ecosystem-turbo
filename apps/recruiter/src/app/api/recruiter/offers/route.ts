@@ -264,7 +264,7 @@ export async function POST(request: NextRequest) {
     const { data: offer, error } = await supabaseAdmin
       .from('job_offers')
       .insert({
-        applicationId: application_id,
+        application_id: application_id,
         salary_offered: salaryOffered,
         currency: currency || 'PHP',
         salary_type: salaryType || 'monthly',
