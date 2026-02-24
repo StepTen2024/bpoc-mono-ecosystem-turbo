@@ -917,7 +917,7 @@ export default function ApplicationDetailPage() {
                   const isRejected = status === 'rejected';
                   const isHired = status === 'hired' || status === 'offer_accepted';
                   const isOfferStage = status === 'offer_sent' || status === 'offer_accepted';
-                  const isInterviewStage = ['interview_scheduled', 'bpoc_round_1', 'bpoc_round_2', 'client_interview', 'interviewed'].includes(status);
+                  const isInterviewStage = ['shortlisted', 'interview_scheduled', 'bpoc_round_1', 'bpoc_round_2', 'client_interview', 'interviewed'].includes(status);
                   const isEarlyStage = ['submitted', 'under_review', 'shortlisted'].includes(status);
                   
                   return (
